@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>test</title>
+
+        <meta charset="utf-8" />
+
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="icon" href="assets/icon.png" />
+        <link rel="stylesheet" href="assets/style.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div>
+                <img id="headerStart" src="assets/icon.png" width="48" height="48" alt="logo" />
+            </div>
+            <div class="connect">
+                <button id="headerConnect" type="button">connect</button>
+            </div>
+            <div>
+                <button id="headerFt" type="button">ft</button>
+            </div>
+            <div>
+                <button id="headerNft" type="button">nft</button>
+            </div>
+            <div>
+                <button id="headerCreate" type="button">create nft</button>
+            </div>
+            <div>
+                <button id="headerMarket" type="button">buy nft</button>
+            </div>
+        </div>
+        <div id="content">
+            <div id="start">
+                <h1>test</h1>
+                <p id="startMessage"></p>
+                <div class="connect">
+                    <button id="startConnect" type="button">connect</button>
+                </div>
+                <p>Install the <a href="https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec" target="_blank" rel="noopener">wallet</a>.</p>
+                <p>Choose the testnet in the wallet. TronLink -> Set up -> Node -> Shasta Testnet.</p>
+                <p>Get free test <a href="https://www.trongrid.io/shasta/#request" target="_blank" rel="noopener">trx</a>.</p>
+                <p>Try it!</p>
+            </div>
+            <div id="ft">
+                <p class="onestring">contract <a id="ftAddress" href="https://shasta.tronscan.org/#/contract/TLc4FQ25w2FXKWWx9sDkuf3XyQ2UvrJzHZ" target="_blank" rel="noopener">TLc4FQ25w2FXKWWx9sDkuf3XyQ2UvrJzHZ</a></p>
+                <p>contract balance <span id="ftContractEth">...</span> trx</p>
+                <p>your shares <span id="ftShares">...</span> f</p>
+                <p>your balance <span id="ftBalance">...</span> f</p>
+                <p>your dividends <span id="ftDividends">...</span> trx</p>
+                <h3>buy and sell tokens</h3>
+                <p>Price 0.1 trx. Fee 10%. Fee distributed among all shareholders.</p>
+                <div class="half">
+                    <div>
+                        <label>trx value
+                            <input id="ftBuyValue" class="input" type="number" />
+                        </label>
+                        <button id="ftBuy" type="button">buy</button>
+                    </div>
+                </div>
+                <div class="half">
+                    <div>
+                        <label>f value
+                            <input id="ftSellValue" class="input" type="number" />
+                        </label>
+                        <button id="ftSell" type="button">sell</button>
+                    </div>
+                </div>
+                <h3>reinvest and withdraw dividends</h3>
+                <p>No fee.</p>
+                <div class="half">
+                    <button id="ftReinvest" type="button">reinvest</button>
+                </div>
+                <div class="half">
+                    <button id="ftWithdraw" type="button">withdraw</button>
+                </div>
+            </div>
+            <div id="nft">
+                <p class="onestring">contract <a id="nftAddress" href="https://shasta.tronscan.org/#/contract/TGkr8pbvJi12GQgkgZBPE74QyDG1vUxiKs" target="_blank" rel="noopener">TGkr8pbvJi12GQgkgZBPE74QyDG1vUxiKs</a></p>
+                <div id="nftItems">
+                    <p>...</p>
+                </div>
+                <div id="nftEdit">
+                    <div class="nftItem">
+                        <button id="nftClose" type="button">back</button>
+                        <div id="nftItemImage"></div>
+                        <p id="nftItemName">...</p>
+                        <p id="nftItemDescription">...</p>
+                        <p>price <span id="nftItemPrice">...</span> f</p>
+                        <p id="nftItemSellPrice">...</p>
+                    </div>
+                    <div class="half">
+                        <div>
+                            <h3>set price</h3>
+                            <label>f value or 0 if not on sell
+                                <input id="nftPrice" class="input" type="number" />
+                            </label>
+                            <button id="nftSet" type="button">set</button>
+                        </div>
+                    </div>
+                    <div class="half">
+                        <div>
+                            <h3>send</h3>
+                            <label>address
+                                <input id="nftSendAddress" class="input" type="text" size="34" maxlength="43" />
+                            </label>
+                            <button id="nftSend" type="button">send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="create">
+                <h3>create new nft</h3>
+                <div id="createPreview"></div>
+                <div id="createForm">
+                    <input id="createImage" class="file" type="file" accept="image/*" />
+                    <label>name
+                        <input id="createName" class="input" type="text" size="40" maxlength="40" />
+                    </label>
+                    <label>description
+                        <input id="createDescription" class="input" type="text" size="100" maxlength="100" />
+                    </label>
+                    <label>price
+                        <input id="createPrice" class="input" type="number" />
+                    </label>
+                    <label>sell price or 0 if not on sell
+                        <input id="createSellPrice" class="input" type="number" />
+                    </label>
+                    <button id="createMint" type="button">create</button>
+                </div>
+            </div>
+            <div id="market">
+                <div id="marketItems">
+                    <p>...</p>
+                </div>
+                <div id="marketBuy">
+                    <button id="marketClose" type="button">back</button>
+                    <div id="marketItemImage"></div>
+                    <p class="onestring">owner <span id="marketItemOwner" class="onestring">...</span></p>
+                    <p id="marketItemName">...</p>
+                    <p id="marketItemDescription">...</p>
+                    <p>price <span id="marketItemPrice">...</span> f</p>
+                    <p>sell price <span id="marketItemSellPrice">...</span> f</p>
+                    <span id="clear"></span>
+                    <button id="marketBuyButton" type="button">buy</button>
+                </div>
+            </div>
+            <div id="log"></div>
+        </div>
+        <script src="assets/bignumber.min.js"></script>
+        <script src="assets/script.js"></script>
+    </body>
+</html>

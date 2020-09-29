@@ -1,0 +1,400 @@
+/* main color #ED0014 - #AF0050 - #1C00E1 */
+
+@font-face {
+    font-family: 'Font';
+    font-style: normal;
+    font-weight: 400;
+    src: url(./font.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+html, body {
+    margin: 0px;
+    padding: 0px;
+    font-family: "Font", monospace;
+}
+button {
+    background: none;
+    outline: 0;
+    font-family: "Font", sans-serif;
+    cursor: pointer;
+}
+a {
+    color: black;
+    cursor: pointer;
+}
+a:hover {
+    color: gray;
+}
+#header {
+    overflow: auto;
+    width: 100%;
+    border-bottom: 2px solid black;
+    margin-bottom: 16px;
+}
+#header div {
+    float: left;
+}
+#headerStart {
+    display: block;
+    margin: 8px;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
+#headerStart:hover {
+    opacity: 0.5;
+}
+#header button {
+    margin: 14px 22px;
+    border: none;
+    padding: 6px;
+    font-size: 18px;
+}
+#header button:hover {
+    color: gray;
+}
+#ft, #nft, #create, #market, .connect, #nftEdit {
+    display: none;
+}
+#content {
+    min-height: 500px;
+}
+#footer {
+    overflow: auto;
+    width: 100%;
+    border-top: 2px solid black;
+}
+#footer div {
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+#footer a {
+    line-height: 48px;
+}
+.active {
+    color: grey;
+}
+#content h1 {
+    margin: 0px;
+    padding: 80px 0px;
+    text-align: center;
+}
+#content h2 {
+    margin: 0px;
+    padding: 20px 0px;
+    text-align: center;
+}
+#content h3 {
+    margin: 0px;
+    padding: 32px 0px;
+    text-align: center;
+}
+#content label {
+    display: block;
+    margin-bottom: 24px;
+    cursor: text;
+}
+#content p {
+    margin: 0px;
+    padding: 10px 16px;
+}
+.onestring {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+#content ol {
+    margin: 16px;
+    padding: 16px;
+}
+#content li {
+    padding: 16px;
+}
+#startConnect {
+    display: block;
+    margin: 32px auto;
+    padding: 16px 32px;
+    border: 3px solid black;
+    border-radius: 1000px;
+    font-size: 20px;
+}
+#startConnect:hover {
+    background-color: lightgray;
+}
+.input {
+    display: block;
+    width: 100%;
+    margin: 8px 0px;
+    border: none;
+    border-bottom: 1px solid gray;
+    outline: 0;
+    background-color: none;
+    font-family: "Font", sans-serif;
+    font-size: 16px;
+}
+.input:hover {
+    border-bottom: 1px solid black;
+}
+.input:focus {
+    border-bottom: 1px solid black;
+}
+#ft button {
+    display: block;
+    margin: auto;
+    width: 140px;
+    padding: 12px;
+    border: 3px solid black;
+    border-radius: 1000px;
+    font-size: 16px;
+}
+#ft button:hover {
+    background-color: lightgray;
+}
+.half {
+    margin-bottom: 32px;
+}
+#ft div div {
+    margin: 32px 10%;
+}
+#nftItems {
+    padding-top: 32px;
+}
+.image {
+    float: left;
+    width: 100%;
+    height: 350px;
+}
+.image div {
+    margin: 4px auto;
+    width: 250px;
+    height: 250px;
+    border: 2px solid gray;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.image div:hover {
+    opacity: 0.5;
+}
+.image p {
+    text-align: center;
+}
+#nftItems::after {
+    margin-bottom: 32px;
+    content: "";
+    clear: both;
+    display: table;
+}
+.nftItem button {
+    display: block;
+    margin: 32px auto;
+    width: 140px;
+    padding: 12px;
+    border: 3px solid black;
+    border-radius: 1000px;
+    font-size: 16px;
+}
+.nftItem button:hover {
+    background-color: lightgray;
+}
+.nftItem div {
+    margin: 4px auto;
+    width: 250px;
+    height: 250px;
+    border: 2px solid gray;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.nftItem div:hover {
+    opacity: 0.5;
+}
+#nftEdit .half button {
+    display: block;
+    margin: auto;
+    width: 140px;
+    padding: 12px;
+    border: 3px solid black;
+    border-radius: 1000px;
+    font-size: 16px;
+}
+#nftEdit .half button:hover {
+    background-color: lightgray;
+}
+#nftEdit .half div {
+    margin: 32px 10%;
+}
+#createPreview {
+    margin: 4px auto;
+    width: 250px;
+    height: 250px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.file {
+    margin: 5px 5% 32px;
+    font-family: "Font", sans-serif;
+}
+#createForm label {
+    margin: 0px 5% 24px 5%;
+}
+#createForm button {
+    display: block;
+    margin: auto;
+    width: 140px;
+    padding: 12px;
+    border: 3px solid black;
+    border-radius: 1000px;
+    font-size: 16px;
+}
+#createForm button:hover {
+    background-color: lightgray;
+}
+#marketItems::after {
+    margin-bottom: 32px;
+    content: "";
+    clear: both;
+    display: table;
+}
+#market button {
+    display: block;
+    margin: 32px auto;
+    width: 140px;
+    padding: 12px;
+    border: 3px solid black;
+    border-radius: 1000px;
+    font-size: 16px;
+}
+#market button:hover {
+    background-color: lightgray;
+}
+#marketBuy div {
+    margin: 4px auto;
+    width: 250px;
+    height: 250px;
+    border: 2px solid gray;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+#marketBuy div:hover {
+    opacity: 0.5;
+}
+#log::before {
+    margin-top: 32px;
+    content: "";
+    clear: both;
+    display: table;
+}
+#log a {
+    display: block;
+    margin: 10px 16px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+#log {
+    margin-bottom: 32px;
+}
+@media screen and (min-width: 550px) {
+    #footer div {
+        width: 33.3%;
+    }
+    .image {
+        width: 50%;
+    }
+}
+@media screen and (min-width: 800px) {
+    #header {
+        margin-bottom: 24px;
+    }
+    #content p {
+        padding: 16px 64px;
+    }
+    #content ol {
+        margin: 32px 64px;
+    }
+    #footer a {
+        line-height: 64px;
+    }
+    .half {
+        float: left;
+        width: 50%;
+    }
+    .image {
+        width: 33.3%;
+    }
+    .nftItem div {
+        margin: 0px 32px;
+        float: left;
+    }
+    .nftItem p {
+        overflow: auto;
+    }
+    .nftItem::after {
+        margin-bottom: 32px;
+        content: "";
+        clear: both;
+        display: table;
+    }
+    #createPreview {
+        width: 40%;
+        float: left;
+    }
+    #createForm {
+        width: 50%;
+        float: left;
+    }
+    #create::after {
+        margin-bottom: 32px;
+        content: "";
+        clear: both;
+        display: table;
+    }
+    #marketBuy div {
+        margin: 0px 32px;
+        float: left;
+    }
+    #marketBuy p {
+        padding: 16px;
+        overflow: auto;
+    }
+    #marketBuy::after {
+        margin-bottom: 32px;
+        content: "";
+        clear: both;
+        display: table;
+    }
+    #clear {
+        content: "";
+        clear: both;
+        display: table;
+    }
+    #log a {
+        margin: 16px 64px;
+    }
+}
+@media screen and (min-width: 1200px) {
+    #content p {
+        padding: 20px 128px;
+    }
+    #content ol {
+        margin: 32px 128px;
+    }
+    .image {
+        width: 25%;
+    }
+    #log a {
+        margin: 20px 128px;
+    }
+}
+@media screen and (min-width: 1500px) {
+    .image {
+        width: 20%;
+    }
+}
