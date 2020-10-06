@@ -58,19 +58,19 @@
             console.log(event.data.message.data);
             if (event.data.message.action === 'tabReply') { // once loaded, send tx
                 if (event.data.message.data.data.node) {
-                    setNetwork(event.data.message.data.data.node.fullNode, tronWeb.defaultAddress.base58);
+                    setNetwork(event.data.message.data.data.node.fullNode);
+                    setAccount(tronWeb.defaultAddress.base58);
                 }
             } else if (event.data.message.action === 'setNode') { // change node
-                setNetwork(event.data.message.data.node.fullNode, account);
+                setNetwork(event.data.message.data.node.fullNode);
             } else if (event.data.message.action === 'setAccount') { // log in/out, change node or account
                 setAccount(event.data.message.data.address);
             }
         });
     }
 
-    function setNetwork(newNetwork, newAccount) {
-console.log('setNetwork ' + newNetwork + ', ' + newAccount);
-        account = null;
+    function setNetwork(newNetwork) {
+console.log('setNetwork ' + newNetwork);
         if (newNetwork === 'https://api.trongrid.io' || newNetwork === 'https://api.tronstack.io') {
             network = true;
         } else if (newNetwork === 'https://api.shasta.trongrid.io') {
@@ -89,8 +89,8 @@ console.log('setNetwork ' + newNetwork + ', ' + newAccount);
         document.getElementById('ftAddress').href = base + ftAddress;
         document.getElementById('nftAddress').innerHTML = nftAddress;
         document.getElementById('nftAddress').href = base + nftAddress;
-if (newNetwork) {
-    setAccount(newAccount);
+if (network) {
+    return;
 }
         tronWeb.contract().at(ftAddress).then(function (contract) {
             ft = contract;
@@ -98,7 +98,6 @@ if (newNetwork) {
         }).then(function (contract) {
             nft = contract;
             loadEvents();
-            setAccount(newAccount);
         });
     }
 
@@ -106,7 +105,7 @@ if (newNetwork) {
 console.log('setAccount ' + newAccount);
         if (!newAccount) {
             account = null;
-        } else if (account !== newAccount) {
+        } else {
             account = newAccount;
             ftBalance = null;
             selectedId = null;
