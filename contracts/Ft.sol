@@ -1,7 +1,7 @@
 pragma solidity 0.5.9;
 
 
-/// @dev basic erc20 transfer
+/// @dev basic trc20 transfer
 interface Token {
     function transfer(address _to, uint256 _value) external;
 }
@@ -52,22 +52,22 @@ library Math {
 }
 
 
-/// @title fixed-price erc20 token linked with nft, both tokens with dividends
+/// @title fixed-price trc20 token linked with nft, both tokens with dividends
 /// @author aqoleg
 contract Ft {
     using Math for uint256;
     using Math for int256;
 
-    uint256 public totalSupply; // erc20
-    mapping(address => uint256) public balanceOf; // erc20
-    mapping(address => mapping(address => uint256)) public allowance; // erc20, [owner][spender]
-    uint8 public constant decimals = 18; // erc20
-    string public constant name = "FT"; // erc20
-    string public constant symbol = "F"; // erc20
+    uint256 public totalSupply; // trc20
+    mapping(address => uint256) public balanceOf; // trc20
+    mapping(address => mapping(address => uint256)) public allowance; // trc20, [owner][spender]
+    uint8 public constant decimals = 18; // trc20
+    string public constant name = "FT"; // trc20
+    string public constant symbol = "F"; // trc20
 
-    // wei*price = totalSupply + totalShares*profitPerShare/multiplicator - totalPayouts
+    // sun*price = totalSupply + totalShares*profitPerShare/multiplicator - totalPayouts
     // dividends = sharesOf*profitPerShare/multiplicator - payoutsOf
-    uint256 public constant price = 10; // wei = ft / price
+    uint256 public constant price = 10000000000000; // sun = ft / price
     uint256 public totalShares; // ft = sum(sharesOf)
     mapping(address => uint256) public sharesOf; // ft = balanceOf() + sum(nftPrices)
     uint256 public profitPerShare; // ft = shares * profitPerShare / multiplicator
@@ -79,12 +79,13 @@ contract Ft {
     address private biz = msg.sender;
     address private dev = msg.sender;
 
-    /// @dev erc20
+    /// @dev trc20
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
 
-    /// @dev erc20
+    /// @dev trc20
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
+    /// @dev when something was changed and didn't fire event Transfer()
     event Update();
 
     modifier onlyNft() {
@@ -92,7 +93,7 @@ contract Ft {
         _;
     }
 
-    /// @notice converts 90% of incoming eth into ft, spreads rest among shareholders; set gasLimit > 200000!
+    /// @notice converts 90% of incoming trx into ft, spreads rest among shareholders
     function () external payable {
         buy();
     }
@@ -125,8 +126,8 @@ contract Ft {
 
     /// @dev converts ft into nft, all price distributed as dividends
     function onMint(address _minter, uint256 _price) external onlyNft returns (bool) {
-        // wei*price = Sp + Sh*pSh/M - P
-        // wei*price = Sp-p + Sh*(pSh + p*M/Sh))/M - P
+        // sun*price = Sp + Sh*pSh/M - P
+        // sun*price = Sp-p + Sh*(pSh + p*M/Sh))/M - P
 
         balanceOf[_minter] = balanceOf[_minter].sub(_price);
         totalSupply = totalSupply.sub(_price);
@@ -143,8 +144,8 @@ contract Ft {
         uint256 _previousPrice,
         uint256 _price
     ) external onlyNft returns (bool) {
-        // wei*price = Sp + Sh*pSh/M - P
-        // wei*price = Sp-f + (Sh+d)*(pSh + f*M/Sh)/M - (P + d*(pSh + f*M/Sh)/M)
+        // sun*price = Sp + Sh*pSh/M - P
+        // sun*price = Sp-f + (Sh+d)*(pSh + f*M/Sh)/M - (P + d*(pSh + f*M/Sh)/M)
 
         uint256 delta = _price.sub(_previousPrice);
         uint256 fee = delta.div(10);
@@ -174,8 +175,8 @@ contract Ft {
         address _to,
         uint256 _price
     ) external onlyNft returns (bool) {
-        // wei*price = Sp + Sh*pSh/M - P
-        // wei*price = Sp + Sh*pSh/M - (P + p*pSh/M - p*pSh/M)
+        // sun*price = Sp + Sh*pSh/M - P
+        // sun*price = Sp + Sh*pSh/M - (P + p*pSh/M - p*pSh/M)
 
         sharesOf[_from] = sharesOf[_from].sub(_price);
         sharesOf[_to] = sharesOf[_to].add(_price);
@@ -190,8 +191,8 @@ contract Ft {
 
     /// @notice converts 90% into dividends, spreads rest among shareholders
     function sell(uint256 _tokens) external {
-        // wei*price = Sp + Sh*pSh/M - P
-        // wei*price = Sp-t + (Sh-t)*(pSh + f*M/(Sh-t))/M - (P - ((t-f) + t*pSh/M))
+        // sun*price = Sp + Sh*pSh/M - P
+        // sun*price = Sp-t + (Sh-t)*(pSh + f*M/(Sh-t))/M - (P - ((t-f) + t*pSh/M))
 
         uint256 fee = _tokens.div(10);
         uint256 withdraw = _tokens.sub(fee);
@@ -211,8 +212,8 @@ contract Ft {
 
     /// @notice withdraws all of dividends
     function withdraw() external {
-        // wei*price = Sp + Sh*pSh/M - P
-        // (wei - d/price)*price = Sp + Sh*pSh/M - (P + d)
+        // sun*price = Sp + Sh*pSh/M - P
+        // (sun - d/price)*price = Sp + Sh*pSh/M - (P + d)
 
         uint256 dividends = dividendsOf(msg.sender);
         require(dividends != 0, "zero dividends");
@@ -225,8 +226,8 @@ contract Ft {
 
     /// @notice converts all of dividends into ft
     function reinvest() external {
-        // wei*price = Sp + Sh*pSh/M - P
-        // wei*price = (Sp+d) + (Sh+d)*pSh/M - (P + (d + d*pSh/M))
+        // sun*price = Sp + Sh*pSh/M - P
+        // sun*price = (Sp+d) + (Sh+d)*pSh/M - (P + (d + d*pSh/M))
 
         uint256 dividends = dividendsOf(msg.sender);
         require(dividends != 0, "zero dividends");
@@ -242,13 +243,13 @@ contract Ft {
         payoutsOf[msg.sender] = payoutsOf[msg.sender].signedAdd(payout);
     }
 
-    /// @notice converts 90% of incoming eth into ft, spreads rest among shareholders
+    /// @notice converts 90% of incoming trx into ft, spreads rest among shareholders
     function buy() public payable {
-        // wei*price = Sp + Sh*pSh/M - P
+        // sun*price = Sp + Sh*pSh/M - P
         // in * price = t + f + bFee + dFee
-        // (wei + in)*price = Sp+t + (Sh+t)*(pSh + f*M/Sh)/M - (P - bFee - dFee + t*(pSh + f*M/Sh)/M)
+        // (sun + in)*price = Sp+t + (Sh+t)*(pSh + f*M/Sh)/M - (P - bFee - dFee + t*(pSh + f*M/Sh)/M)
         // first:
-        // (wei + in)*price = Sp+t+f + (Sh+t+f)*pSh/M - (P - bFee - dFee + (t+f)*pSh/M)
+        // (sun + in)*price = Sp+t+f + (Sh+t+f)*pSh/M - (P - bFee - dFee + (t+f)*pSh/M)
 
         uint256 tokens = msg.value.mul(price);
         uint256 fee = tokens.div(10);
@@ -280,7 +281,7 @@ contract Ft {
     }
 
     /// @notice transfers ft, spreads plus 5% among shareholders
-    /// @dev erc20
+    /// @dev trc20
     function transfer(address _to, uint256 _value) public returns (bool) {
         transferFt(msg.sender, _to, _value);
 
@@ -288,7 +289,7 @@ contract Ft {
     }
 
     /// @notice transfers ft, spreads plus 5% among shareholders
-    /// @dev erc20
+    /// @dev trc20
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
         allowance[_from][msg.sender] = allowance[_from][msg.sender].sub(_value);
 
@@ -298,7 +299,7 @@ contract Ft {
     }
 
     /// @notice approves other address to spend your ft
-    /// @dev erc20
+    /// @dev trc20
     function approve(address _spender, uint256 _value) public returns (bool) {
         require(_spender != address(0), "zero _spender");
 
@@ -326,9 +327,9 @@ contract Ft {
     }
 
     function transferFt(address _from, address _to, uint256 _value) private {
-        // wei*price = Sp + Sh*pSh/M - P
+        // sun*price = Sp + Sh*pSh/M - P
         // newPSh = pSh + f*M/(Sh-v-f)
-        // wei*price = Sp-f + (Sh-f)*newPSh/M - (P - (f+v)*pSh/M + v*newPSh/M)
+        // sun*price = Sp-f + (Sh-f)*newPSh/M - (P - (f+v)*pSh/M + v*newPSh/M)
 
         require(_to != address(0), "zero _to");
         uint256 fee = _value.div(20);

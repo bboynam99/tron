@@ -1,7 +1,7 @@
-pragma solidity ^0.6.4;
+pragma solidity 0.5.9;
 
 
-/// @dev basic erc20 transfer
+/// @dev basic trc20 transfer
 interface Token {
     function transfer(address _to, uint256 _value) external;
 }
@@ -316,3 +316,4 @@ contract Nft {
         return size > 0;
     }
 }
+

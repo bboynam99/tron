@@ -1,14 +1,6 @@
 "use strict";
 
 (function () {
-    var ft; // contract
-    var nft; // contract
-    var prefix;
-
-    var networkMain = 1;
-    var networkRopsten = 3;
-    var network = null;
-    var account = null; // not login if null
     var tabStart = 0;
     var tabFt = 1;
     var tabNft = 2;
@@ -16,164 +8,116 @@
     var tabMarket = 4;
     var tab = tabStart;
 
-    var ethBalance;
-    var ftBalance;
-    var selectedId;
-    var nftLoading;
-    var marketLoading;
+    var ft = null; // contract
+    var nft = null; // contract
+    var network = null; // not defined (null), main (true) or shasta (false)
+    var account = null; // not login if null
+
+    var ftBalance = null;
+    var selectedId = null;
+    var nftLoading = false;
+    var marketLoading = false;
 
     window.onload = function () {
-        document.getElementById("headerStart").onclick = function () {
+        document.getElementById('headerStart').onclick = function () {
             display(tabStart);
         }
-        document.getElementById("headerConnect").onclick = connect;
-        document.getElementById("headerFt").onclick = function () {
+        document.getElementById('headerFt').onclick = function () {
             display(tabFt);
         };
-        document.getElementById("headerNft").onclick = function () {
+        document.getElementById('headerNft').onclick = function () {
             display(tabNft);
         };
-        document.getElementById("headerCreate").onclick = function () {
+        document.getElementById('headerCreate').onclick = function () {
             display(tabCreate);
         };
-        document.getElementById("headerMarket").onclick = function () {
+        document.getElementById('headerMarket').onclick = function () {
             display(tabMarket);
         };
-        document.getElementById("startConnect").onclick = connect;
-        document.getElementById("ftBuy").onclick = ftBuy;
-        document.getElementById("ftSell").onclick = ftSell;
-        document.getElementById("ftWithdraw").onclick = ftWithdraw;
-        document.getElementById("ftReinvest").onclick = ftReinvest;
-        document.getElementById("nftClose").onclick = nftClose;
-        document.getElementById("nftSet").onclick = nftPrice;
-        document.getElementById("nftSend").onclick = nftSend;
-        document.getElementById("createImage").onchange = createImage;
-        document.getElementById("createMint").onclick = createMint;
-        document.getElementById("marketClose").onclick = marketClose;
-        document.getElementById("marketBuyButton").onclick = marketBuy;
+        document.getElementById('ftBuy').onclick = ftBuy;
+        document.getElementById('ftSell').onclick = ftSell;
+        document.getElementById('ftWithdraw').onclick = ftWithdraw;
+        document.getElementById('ftReinvest').onclick = ftReinvest;
+        document.getElementById('nftClose').onclick = nftClose;
+        document.getElementById('nftSet').onclick = nftPrice;
+        document.getElementById('nftSend').onclick = nftSend;
+        document.getElementById('createImage').onchange = createImage;
+        document.getElementById('createMint').onclick = createMint;
+        document.getElementById('marketClose').onclick = marketClose;
+        document.getElementById('marketBuyButton').onclick = marketBuy;
 
         if (typeof window.tronWeb === 'undefined') {
-            document.getElementById("startMessage").innerHTML = "install the wallet";
-        } else {
-            var elements = document.getElementsByClassName("connect");
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].style.display = "block";
-            }
-
-            /*ethereum.on('accountsChanged', function (accounts) {
-                setAccount(accounts.length > 0 ? accounts[0] : null);
-            });
-            ethereum.on('networkChanged', function (newNetwork) {
-                setNetwork(newNetwork);
-            });
-            ethereum.autoRefreshOnNetworkChange = false;*/
+            document.getElementById('startMessage').innerHTML = 'Install the <a href="https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec" target="_blank" rel="noopener">wallet</a>.';
+            return;
         }
-    };
-
-    function connect() {
-        setAccount(tronWeb.defaultAddress.base58);
-        network = null;
-        setNetwork(networkRopsten);
-        /*ethereum.enable().then(
-            function (accounts) {
-                var elements = document.getElementsByClassName("connect");
-                for (var i = 0; i < elements.length; i++) {
-                    elements[i].style.display = "none";
+        addEventListener('message', function (event) {
+            if (!event.data.message) {
+                return;
+            }
+            if (event.data.message.action === 'tabReply') { // once loaded, send tx
+                if (event.data.message.data.data.node) {
+                    setNetwork(event.data.message.data.data.node.fullNode, tronWeb.defaultAddress.base58);
                 }
-
-                setAccount(accounts.length > 0 ? accounts[0] : null);
-                return web3.eth.net.getId();
-            }, function () {
-                document.getElementById("startMessage").innerHTML = "you have denied account authorization";
-            }
-        ).then(function (newNetwork) {
-            setNetwork(newNetwork);
-        }).catch(function (error) {
-            document.getElementById("startMessage").innerHTML = error;
-        });*/
-    }
-
-    function setAccount(newAccount) {
-        if (typeof newAccount === 'undefined' || newAccount === null) {
-            account = null;
-            return;
-        }
-        if (newAccount === account) {
-            return;
-        }
-        account = newAccount;
-        if (network === networkMain || network === networkRopsten) {
-            document.getElementById("startMessage").innerHTML = "";
-            logAccount();
-            load();
-        }
-    }
-
-    function setNetwork(newNetwork) {
-        if (typeof newNetwork === 'undefined' || newNetwork === null) {
-            network = null;
-            return;
-        }
-        newNetwork = Number(newNetwork);
-        if (newNetwork === network) {
-            return;
-        }
-        network = newNetwork;
-        if (network !== networkMain && network !== networkRopsten) {
-            document.getElementById("startMessage").innerHTML = "switch to ropsten or main network";
-            return;
-        }
-        document.getElementById("startMessage").innerHTML = "";
-        document.getElementById("log").innerHTML = "";
-        var ftAddress, nftAddress;
-        if (network === networkMain) {
-            prefix = "https://etherscan.io/";
-            ftAddress = "0x971E2db61Add4a2c460bA4a5B754a501c1a4c23F";
-            nftAddress = "0xc569b368D2F6Ce6aE819CaDDEDFd95dCe3390d51";
-        } else {
-            prefix = "https://shasta.tronscan.org/#";
-            ftAddress = "TLc4FQ25w2FXKWWx9sDkuf3XyQ2UvrJzHZ";
-            nftAddress = "TGkr8pbvJi12GQgkgZBPE74QyDG1vUxiKs";
-        }
-        document.getElementById("ftAddress").innerHTML = ftAddress;
-        document.getElementById("ftAddress").href = prefix + "/contract/" + ftAddress;
-        document.getElementById("nftAddress").innerHTML = nftAddress;
-        document.getElementById("nftAddress").href = prefix + "/contract/" + nftAddress;
-        tronWeb.contract().at(ftAddress).then(function (contract) {
-            ft = contract;
-            console.log(ft);
-            return tronWeb.contract().at(nftAddress);
-        }).then(function (contract) {
-            nft = contract;
-            console.log(nft);
-        }).then(function () {
-            loadEvents();
-            if (account !== null) {
-                logAccount();
-                load();
+            } else if (event.data.message.action === 'setNode') { // change node
+                setNetwork(event.data.message.data.node.fullNode, account);
+            } else if (event.data.message.action === 'setAccount') { // log in/out, change node or account
+                setAccount(event.data.message.data.address);
             }
         });
     }
 
-    function load() {        
-        ethBalance = 0;
-        ftBalance = 0;
-        selectedId = null;
-        nftLoading = false;
-        marketLoading = false;
-        loadEth();
-        loadFt();
-        loadNft();
-        loadMarket();
+    function setNetwork(newNetwork, newAccount) {
+        account = null;
+        if (newNetwork === 'https://api.trongrid.io' || newNetwork === 'https://api.tronstack.io') {
+            network = true;
+        } else if (newNetwork === 'https://api.shasta.trongrid.io') {
+            network = false;
+        } else {
+            network = null;
+            ft = null;
+            nft = null;
+            return;
+        }
+        document.getElementById('log').innerHTML = '';
+        var ftAddress = network ? 'ft' : 'TQNG46ys15172srMdezH7FgwK8m2rusx97';
+        var nftAddress = network ? 'nft' : 'TTdfFLV5WKKa83t8JsjGDuh74ejok9rCT9';
+        var base = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/contract/';
+        document.getElementById('ftAddress').innerHTML = ftAddress;
+        document.getElementById('ftAddress').href = base + ftAddress;
+        document.getElementById('nftAddress').innerHTML = nftAddress;
+        document.getElementById('nftAddress').href = base + nftAddress;
+        tronWeb.contract().at(ftAddress).then(function (contract) {
+            ft = contract;
+            return tronWeb.contract().at(nftAddress);
+        }).then(function (contract) {
+            nft = contract;
+            loadEvents();
+            setAccount(newAccount);
+        });
+    }
+
+    function setAccount(newAccount) {
+        if (!newAccount) {
+            account = null;
+        } else if (account !== newAccount) {
+            account = newAccount;
+            ftBalance = null;
+            selectedId = null;
+            nftLoading = false;
+            marketLoading = false;
+            loadFt();
+            loadNft();
+            loadMarket();
+        }
     }
 
     function logAccount() {
-        var a = document.createElement("a");
+        var a = document.createElement('a');
         a.innerHTML = account;
-        a.href = prefix + "/address/" + account;
-        a.setAttribute("target", "_blank");
-        a.setAttribute("rel", "noopener");
-        document.getElementById("log").appendChild(a);
+        a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/address/' + account;
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener');
+        document.getElementById('log').appendChild(a);
     }
 
     function display(newTab) {
@@ -184,72 +128,102 @@
         nftClose();
         marketClose();
 
-        document.getElementById("headerFt").className = tab === tabFt ? "active" : "";
-        document.getElementById("headerNft").className = tab === tabNft ? "active" : "";
-        document.getElementById("headerCreate").className = tab === tabCreate ? "active" : "";
-        document.getElementById("headerMarket").className = tab === tabMarket ? "active" : "";
-        document.getElementById("start").style.display = tab === tabStart ? "block" : "none";
-        document.getElementById("ft").style.display = tab === tabFt ? "block" : "none";
-        document.getElementById("nft").style.display = tab === tabNft ? "block" : "none";
-        document.getElementById("create").style.display = tab === tabCreate ? "block" : "none";
-        document.getElementById("market").style.display = tab === tabMarket ? "block" : "none";
+        document.getElementById('headerFt').className = tab === tabFt ? 'active' : '';
+        document.getElementById('headerNft').className = tab === tabNft ? 'active' : '';
+        document.getElementById('headerCreate').className = tab === tabCreate ? 'active' : '';
+        document.getElementById('headerMarket').className = tab === tabMarket ? 'active' : '';
+        document.getElementById('start').style.display = tab === tabStart ? 'block' : 'none';
+        document.getElementById('ft').style.display = tab === tabFt ? 'block' : 'none';
+        document.getElementById('nft').style.display = tab === tabNft ? 'block' : 'none';
+        document.getElementById('create').style.display = tab === tabCreate ? 'block' : 'none';
+        document.getElementById('market').style.display = tab === tabMarket ? 'block' : 'none';
     }
 
     function loadEvents() {
         ft.Transfer().watch(function (error, result) {
-            console.log('event' + error);
+            console.log('event ' + error);
             console.log(result);
             loadFt();
         });
-        nft.TransferSingle().watch(function (eroor, result) {
-            console.log('event' + error);
+        ft.Update().watch(function (error, result) {
+            console.log('event ' + error);
             console.log(result);
-            loadNft(); 
+            loadFt();
+        });
+        nft.TransferSingle().watch(function (error, result) {
+            console.log('event ' + error);
+            console.log(result);
+            loadNft();
             loadMarket();
         });
     }
 
-    function loadEth() {
-        tronWeb.trx.getBalance(account).then(function (result) {
-            ethBalance = new BigNumber(result).shiftedBy(-6);
-        });
-    }
-
     function loadFt() {
-        tronWeb.trx.getBalance(ft.address).then(function (result) {
-            result = new BigNumber(result).shiftedBy(-6).toFixed(3);
-            document.getElementById("ftContractEth").innerHTML = result;
+        if (account === null || ft === null) {
+            return;
+        }
+        tronWeb.trx.getUnconfirmedBalance(ft.address).then(function (result) {
+            result = tronWeb.BigNumber(result).shiftedBy(-6);
+            if (result.isZero()) {
+                document.getElementById('ftContractTrx').title = '';
+                document.getElementById('ftContractTrx').innerHTML = '0';
+            } else {
+                document.getElementById('ftContractTrx').title = result;
+                result = result.toFixed(3, tronWeb.BigNumber.ROUND_DOWN);
+                document.getElementById('ftContractTrx').innerHTML = result;
+            }
         });
         ft.sharesOf(account).call().then(function (result) {
-            result = new BigNumber(result).shiftedBy(-6).toFixed(3);
-            document.getElementById("ftShares").innerHTML = result;
+            result = tronWeb.BigNumber(result).shiftedBy(-18);
+            if (result.isZero()) {
+                document.getElementById('ftShares').title = '';
+                document.getElementById('ftShares').innerHTML = '0';
+            } else {
+                document.getElementById('ftShares').title = result;
+                result = result.toFixed(3, tronWeb.BigNumber.ROUND_DOWN);
+                document.getElementById('ftShares').innerHTML = result;
+            }
         });
         ft.balanceOf(account).call().then(function (result) {
-            ftBalance = new BigNumber(result).shiftedBy(-6);
-            document.getElementById("ftBalance").innerHTML = ftBalance.toFixed(3);
+            ftBalance = tronWeb.BigNumber(result).shiftedBy(-18);
+            if (ftBalance.isZero()) {
+                document.getElementById('ftBalance').title = '';
+                document.getElementById('ftBalance').innerHTML = '0';
+            } else {
+                document.getElementById('ftBalance').title = ftBalance;
+                result = ftBalance.toFixed(3, tronWeb.BigNumber.ROUND_DOWN);
+                document.getElementById('ftBalance').innerHTML = result;
+            }
         });
         ft.dividendsOf(account).call().then(function (result) {
-            result = new BigNumber(result).shiftedBy(-7).toFixed(3);
-            document.getElementById("ftDividends").innerHTML = result;
+            result = tronWeb.BigNumber(result).shiftedBy(-19);
+            if (result.isZero()) {
+                document.getElementById('ftDividends').title = '';
+                document.getElementById('ftDividends').innerHTML = '0';
+            } else {
+                document.getElementById('ftDividends').title = result;
+                result = result.toFixed(3, tronWeb.BigNumber.ROUND_DOWN);
+                document.getElementById('ftDividends').innerHTML = result;
+            }
         });
     }
 
     function loadNft() {
-        if (nftLoading) {
+        if (account === null || nft === null || nftLoading) {
             return;
         }
         nftLoading = true;
-        document.getElementById("nftItems").innerHTML = "";
-        var p = document.createElement("p");
-        p.innerHTML = "loading...";
-        document.getElementById("nftItems").appendChild(p);
+        document.getElementById('nftItems').innerHTML = '';
+        var p = document.createElement('p');
+        p.innerHTML = 'loading...';
+        document.getElementById('nftItems').appendChild(p);
 
         nft.tokensOf(account).call().then(function (result) {
-            document.getElementById("nftItems").innerHTML = "";
+            document.getElementById('nftItems').innerHTML = '';
             if (result == 0) {
-                var p = document.createElement("p");
-                p.innerHTML = "you have no nft";
-                document.getElementById("nftItems").appendChild(p);
+                var p = document.createElement('p');
+                p.innerHTML = 'you have no nft';
+                document.getElementById('nftItems').appendChild(p);
                 nftLoading = false;
             } else {
                 getId(0, result);
@@ -258,8 +232,26 @@
     }
 
     function getId(index, total) {
-        nft.idOf(account, index).call().then(function (result) {
-            addId(result);
+        nft.idOf(account, index).call().then(function (id) {
+            var rootDiv = document.createElement('div');
+            rootDiv.className = 'image';
+            document.getElementById('nftItems').appendChild(rootDiv);
+            var div = document.createElement('div');
+            div.id = id;
+            div.onclick = function (event) {
+                nftItem(event.target.id);
+            };
+            rootDiv.appendChild(div);
+            var p = document.createElement('p');
+            rootDiv.appendChild(p);
+
+            nft.imageOf(id).call().then(function (result) {
+                div.style.backgroundImage = 'url(\'https://ipfs.io' + result + '\')';
+            });
+            nft.nameOf(id).call().then(function (result) {
+                p.innerHTML = result;
+            });
+
             if (++index < total) {
                 getId(index, total);
             } else {
@@ -268,72 +260,18 @@
         });
     }
 
-    function addId(id) {
-        var rootDiv = document.createElement("div");
-        rootDiv.className = "image";
-        document.getElementById("nftItems").appendChild(rootDiv);
-        var div = document.createElement("div");
-        div.id = id;
-        div.onclick = function (event) {
-            nftItem(event.target.id);
-        };
-        rootDiv.appendChild(div);
-        var p = document.createElement("p");
-        rootDiv.appendChild(p);
-
-        nft.imageOf(id).call().then(function (ipfs) {
-            div.style.backgroundImage = "url('https://ipfs.io" + ipfs + "')";
-            nft.nameOf(id).call().then(function (name) {
-                p.innerHTML = name;
-            });
-        })
-    }
-
-    function nftItem(id) {
-        document.getElementById("nftItems").style.display = "none";
-        document.getElementById("nftEdit").style.display = "block";
-        selectedId = id;
-        nft.imageOf(id).call().then(function (ipfs) {
-            ipfs = "https://ipfs.io" + ipfs;
-            var div = document.getElementById("nftItemImage");
-            div.style.backgroundImage = "url('" + ipfs + "')";
-            div.onclick = function () {
-                window.open(ipfs);
-            };
-            nft.nameOf(id).call().then(function (name) {
-                document.getElementById("nftItemName").innerHTML = name;
-                nft.descriptionOf(id).call().then(function (description) {
-                    document.getElementById("nftItemDescription").innerHTML = description;
-                    nft.priceOf(id).call().then(function (price) {
-                        price = new BigNumber(price).shiftedBy(-6).toFixed(3);
-                        document.getElementById("nftItemPrice").innerHTML = price;
-                        nft.sellPriceOf(id).call().then(function (sellPrice) {
-                            if (sellPrice == 0) {
-                                sellPrice = "not on sell";
-                            } else {
-                                sellPrice = new BigNumber(sellPrice).shiftedBy(-6).toFixed(3);
-                                sellPrice = "sell price " + sellPrice + " f";
-                            }
-                            document.getElementById("nftItemSellPrice").innerHTML = sellPrice;
-                        });
-                    });
-                });
-            });
-        });
-    }
-
     function loadMarket() {
-        if (marketLoading) {
+        if (account === null || nft === null || marketLoading) {
             return;
         }
         marketLoading = true;
-        document.getElementById("marketItems").innerHTML = "";
-        var p = document.createElement("p");
-        p.innerHTML = "loading...";
-        document.getElementById("marketItems").appendChild(p);
+        document.getElementById('marketItems').innerHTML = '';
+        var p = document.createElement('p');
+        p.innerHTML = 'loading...';
+        document.getElementById('marketItems').appendChild(p);
 
         nft.totalSupply().call().then(function (result) {
-            document.getElementById("marketItems").innerHTML = "";
+            document.getElementById('marketItems').innerHTML = '';
             marketId(0, result);
         });
     }
@@ -349,192 +287,197 @@
                 return;
             }
 
-            var rootDiv = document.createElement("div");
-            rootDiv.className = "image";
-            document.getElementById("marketItems").appendChild(rootDiv);
-            var div = document.createElement("div");
-            div.id = "market" + id;
+            var rootDiv = document.createElement('div');
+            rootDiv.className = 'image';
+            document.getElementById('marketItems').appendChild(rootDiv);
+            var div = document.createElement('div');
+            div.id = 'market' + id;
             div.onclick = function (event) {
                 marketItem(event.target.id.substring(6));
             };
             rootDiv.appendChild(div);
-            var p = document.createElement("p");
+            var p = document.createElement('p');
             rootDiv.appendChild(p);
 
-            nft.imageOf(id).call().then(function (ipfs) {
-                div.style.backgroundImage = "url('https://ipfs.io" + ipfs + "')";
-                nft.nameOf(id).call().then(function (name) {
-                    p.innerHTML = name;
-                    if (++id < total) {
-                        marketId(id, total);
-                    } else {
-                        marketLoading = false;
-                    }
-                });
+            nft.imageOf(id).call().then(function (result) {
+                div.style.backgroundImage = 'url(\'https://ipfs.io' + result + '\')';
             });
+            nft.nameOf(id).call().then(function (result) {
+                p.innerHTML = result;
+            });
+            if (++id < total) {
+                marketId(id, total);
+            } else {
+                marketLoading = false;
+            }
         });
     }
 
-    function marketItem(id) {
-        document.getElementById("marketItems").style.display = "none";
-        document.getElementById("marketBuy").style.display = "block";
-        selectedId = id;
-        nft.imageOf(id).call().then(function (ipfs) {
-            ipfs = "https://ipfs.io" + ipfs;
-            var div = document.getElementById("marketItemImage");
-            div.style.backgroundImage = "url('" + ipfs + "')";
-            div.onclick = function () {
-                window.open(ipfs);
-            };
-            nft.ownerOf(id).call().then(function (owner) {
-                document.getElementById("marketItemOwner").innerHTML = owner;
-                nft.nameOf(id).call().then(function (name) {
-                    document.getElementById("marketItemName").innerHTML = name;
-                    nft.descriptionOf(id).call().then(function (description) {
-                        document.getElementById("marketItemDescription").innerHTML = description;
-                        nft.priceOf(id).call().then(function (price) {
-                            price = new BigNumber(price).shiftedBy(-6).toFixed(3);
-                            document.getElementById("marketItemPrice").innerHTML = price;
-                            nft.sellPriceOf(id).call().then(function (sellPrice) {
-                                sellPrice = new BigNumber(sellPrice).shiftedBy(-6).toFixed(3);
-                                document.getElementById("marketItemSellPrice").innerHTML = sellPrice;
-                            });
-                        });
-                    });
-                });
-            });
-        });
+    function check() {
+        if (account === null) {
+            alert('please login in tronlink');
+        } else if (network === null || network) {
+            alert('set the shasta testnet');
+        } else {
+            return true;
+        }
+        return false;
     }
 
     function ftBuy() {
-        var eth = new BigNumber(document.getElementById("ftBuyValue").value);
-        document.getElementById("ftBuyValue").value = "";
-        if (eth.isNaN()) {
-            document.getElementById("ftBuyValue").placeholder = "enter a number";
+        if (!check()) {
             return;
         }
-        if (eth.gt(ethBalance)) {
-            document.getElementById("ftBuyValue").placeholder = "enter value less then " + ethBalance;
+        var trx = tronWeb.BigNumber(document.getElementById('ftBuyValue').value);
+        if (trx.isNaN()) {
+            document.getElementById('ftBuyValue').value = '';
             return;
         }
-        document.getElementById("ftBuyValue").placeholder = "";
 
         ft.buy().send({
-            feeLimit: 100000000,
-            callValue: eth.shiftedBy(6),
-            shouldPollResponse: false
+            callValue: trx.shiftedBy(6),
         }).then(function (hash) {
-            console.log(hash);
-            var a = document.createElement("a");
-            a.innerHTML = "buy, " + eth.toFixed() + " trx";
+            var a = document.createElement('a');
+            a.innerHTML = 'buy ' + trx.toFixed() + ' trx';
             a.id = hash;
-            a.href = prefix + "/transaction/" + hash;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");
-            document.getElementById("log").appendChild(a);
+            a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            document.getElementById('log').appendChild(a);
         });
     }
 
     function ftSell() {
-        var tokens = new BigNumber(document.getElementById("ftSellValue").value);
-        document.getElementById("ftSellValue").value = "";
+        if (!check()) {
+            return;
+        }
+        var tokens = tronWeb.BigNumber(document.getElementById('ftSellValue').value);
         if (tokens.isNaN()) {
-            document.getElementById("ftSellValue").placeholder = "enter a number";
+            document.getElementById('ftSellValue').placeholder = '';
             return;
         }
-        if (tokens.gt(ftBalance)) {
-            document.getElementById("ftSellValue").placeholder = "enter value less then " + ftBalance;
-            return;
-        }
-        document.getElementById("ftSellValue").placeholder = "";
 
         ft.sell(
-            tokens.shiftedBy(6).toFixed(0)
-        ).send({
-            feeLimit: 100000000,
-            shouldPollResponse: true
-        }).then(function (hash) {
-            console.log(hash);
-            var a = document.createElement("a");
-            a.innerHTML = "sell, " + tokens.toFixed() + " FT";
+            tokens.shiftedBy(18).toFixed(0)
+        ).send().then(function (hash) {
+            var a = document.createElement('a');
+            a.innerHTML = 'sell ' + tokens.toFixed() + ' f';
             a.id = hash;
-            a.href = prefix + "/transaction/" + hash;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");
-            document.getElementById("log").appendChild(a);
-        });
-    }
-
-    function ftWithdraw() {
-        ft.withdraw().send({
-            feeLimit: 100000000,
-            shouldPollResponse: true
-        }).then(function (hash) {
-            var a = document.createElement("a");
-            a.innerHTML = "withdraw";
-            a.id = hash;
-            a.href = prefix + "/transaction/" + hash;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");
-            document.getElementById("log").appendChild(a);
+            a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            document.getElementById('log').appendChild(a);
         });
     }
 
     function ftReinvest() {
-        ft.reinvest().send({
-            feeLimit: 100000000,
-            shouldPollResponse: true
-        }).then(function (hash) {
-            var a = document.createElement("a");
-            a.innerHTML = "reinvest";
+        if (!check()) {
+            return;
+        }
+        ft.reinvest().send().then(function (hash) {
+            var a = document.createElement('a');
+            a.innerHTML = 'reinvest';
             a.id = hash;
-            a.href = prefix + "/transaction/" + hash;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");
-            document.getElementById("log").appendChild(a);
+            a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            document.getElementById('log').appendChild(a);
+        });
+    }
+
+    function ftWithdraw() {
+        if (!check()) {
+            return;
+        }
+        ft.withdraw().send().then(function (hash) {
+            var a = document.createElement('a');
+            a.innerHTML = 'withdraw';
+            a.id = hash;
+            a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            document.getElementById('log').appendChild(a);
+        });
+    }
+
+    function nftItem(id) {
+        if (!check()) {
+            return;
+        }
+        document.getElementById('nftItems').style.display = 'none';
+        document.getElementById('nftEdit').style.display = 'block';
+        selectedId = id;
+        nft.imageOf(id).call().then(function (ipfs) {
+            ipfs = 'https://ipfs.io' + ipfs;
+            var div = document.getElementById('nftItemImage');
+            div.style.backgroundImage = 'url(\'' + ipfs + '\')';
+            div.onclick = function () {
+                window.open(ipfs);
+            };
+        });
+        nft.nameOf(id).call().then(function (result) {
+            document.getElementById('nftItemName').innerHTML = result;
+        });
+        nft.descriptionOf(id).call().then(function (result) {
+            document.getElementById('nftItemDescription').innerHTML = result;
+        });
+        nft.priceOf(id).call().then(function (result) {
+            result = tronWeb.BigNumber(result).shiftedBy(-18);
+            document.getElementById('nftItemPrice').title = result;
+            result = result.toFixed(3, tronWeb.BigNumber.ROUND_DOWN);
+            document.getElementById('nftItemPrice').innerHTML = result;
+        });
+        nft.sellPriceOf(id).call().then(function (result) {
+            if (result == 0) {
+                document.getElementById('nftItemSellPrice').title = '';
+                document.getElementById('nftItemSellPrice').innerHTML = 'not on sell';
+            } else {
+                result = tronWeb.BigNumber(result).shiftedBy(-18);
+                document.getElementById('nftItemSellPrice').title = result;
+                result = 'sell price ' + result.toFixed(3, tronWeb.BigNumber.ROUND_DOWN) + ' f';
+                document.getElementById('nftItemSellPrice').innerHTML = result;
+            }
         });
     }
 
     function nftClose() {
-        document.getElementById("nftItems").style.display = "block";
-        document.getElementById("nftEdit").style.display = "none";
+        document.getElementById('nftItems').style.display = 'block';
+        document.getElementById('nftEdit').style.display = 'none';
     }
 
     function nftPrice() {
-        var price = new BigNumber(document.getElementById("nftPrice").value);
-        document.getElementById("nftPrice").value = "";
-        if (price.isNaN()) {
-            document.getElementById("nftPrice").placeholder = "enter a number";
+        if (!check()) {
             return;
         }
-        document.getElementById("nftPrice").placeholder = "";
+        var price = tronWeb.BigNumber(document.getElementById('nftPrice').value);
+        if (price.isNaN()) {
+            document.getElementById('nftPrice').value = '';
+        }
 
         nft.setPrice(
             selectedId,
-            price.shiftedBy(6).toFixed(0)
-        ).send({
-            feeLimit: 100000000,
-            shouldPollResponse: true
-        }).then(function (hash) {
+            price.shiftedBy(18).toFixed(0)
+        ).send().then(function (hash) {
             nftClose();
-            var a = document.createElement("a");
-            a.innerHTML = "change price, id " + selectedId + ", " + price + " FT";
+            var a = document.createElement('a');
+            a.innerHTML = 'change price id ' + selectedId;
             a.id = hash;
-            a.href = prefix + "/transaction/" + hash;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");
-            document.getElementById("log").appendChild(a);
+            a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            document.getElementById('log').appendChild(a);
         });
     }
 
     function nftSend() {
-        var address = document.getElementById("nftSendAddress").value;
-        document.getElementById("nftSendAddress").value = "";
-        if (!tronWeb.isAddress(address)) {
-            document.getElementById("nftSendAddress").placeholder = "enter address";
+        if (!check()) {
             return;
         }
-        document.getElementById("nftSendAddress").placeholder = "";
+        var address = document.getElementById('nftSendAddress').value;
+        if (!tronWeb.isAddress(address)) {
+            document.getElementById('nftSendAddress').value = '';
+            return;
+        }
 
         nft.safeTransferFrom(
             account,
@@ -542,106 +485,98 @@
             selectedId,
             1,
             "0x0"
-        ).send({
-            feeLimit: 100000000,
-            shouldPollResponse: true
-        }).then(function (hash) {
+        ).send().then(function (hash) {
             nftClose();
-            var a = document.createElement("a");
-            a.innerHTML = "send, id " + selectedId + ", to " + address;
+            var a = document.createElement('a');
+            a.innerHTML = 'send id ' + selectedId;
             a.id = hash;
-            a.href = prefix + "/transaction/" + hash;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");
-            document.getElementById("log").appendChild(a);
+            a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            document.getElementById('log').appendChild(a);
         });
     }
 
-    function createImage () {
-        var input = document.getElementById("createImage");
+    function createImage() {
+        var input = document.getElementById('createImage');
         if (input.files.length !== 0) {
-            var url = "url('" + URL.createObjectURL(input.files[0]) + "')";
-            document.getElementById("createPreview").style.backgroundImage = url;
+            var url = 'url(\'' + URL.createObjectURL(input.files[0]) + '\')';
+            document.getElementById('createPreview').style.backgroundImage = url;
         }
     }
 
     function createMint() {
-        var img = document.getElementById("createImage");
+        if (!check()) {
+            return;
+        }
+        var img = document.getElementById('createImage');
         if (img.files.length === 0) {
             return;
         }
-        var name = document.getElementById("createName").value;
-        var description = document.getElementById("createDescription").value;
-        var price = new BigNumber(document.getElementById("createPrice").value);
+        var name = document.getElementById('createName').value;
+        var description = document.getElementById('createDescription').value;
+        var price = tronWeb.BigNumber(document.getElementById('createPrice').value);
         if (price.isNaN()) {
-            document.getElementById("createPrice").placeholder = "enter a number";
-            document.getElementById("createPrice").value = "";
+            document.getElementById('createPrice').value = '';
             return;
         }
-        if (!price.gt(1000) || price.gt(ftBalance)) {
-            document.getElementById("createPrice").placeholder = "enter value less then " + ftBalance + "and greater than 1000";
-            document.getElementById("createPrice").value = "";
-            return;
-        }
-        var sellPrice = new BigNumber(document.getElementById("createSellPrice").value);
+        var sellPrice = tronWeb.BigNumber(document.getElementById('createSellPrice').value);
         if (sellPrice.isNaN()) {
-            document.getElementById("createSellPrice").placeholder = "enter a number";
-            document.getElementById("createSellPrice").value = "";
+            document.getElementById('createSellPrice').value = '';
             return;
         }
         if (!sellPrice.isZero() && !sellPrice.gt(price)) {
-            document.getElementById("createSellPrice").placeholder = "enter 0 or > price";
-            document.getElementById("createSellPrice").value = "";
+            document.getElementById('createSellPrice').value = '';
             return;
         }
-        var a = document.createElement("a");
-        a.innerHTML = "uploading...";
-        document.getElementById("log").appendChild(a);
+        var a = document.createElement('a');
+        a.innerHTML = 'uploading...';
+        document.getElementById('log').appendChild(a);
+        document.getElementById('createMint').onclick = '';
 
         upload(img.files[0], function (error, result) {
             if (error) {
                 a.innerHTML = error;
+                document.getElementById('createMint').onclick = createMint;
                 return;
             }
-            var image = "/ipfs/" + result;
-            a.innerHTML = "uploaded " + image;
-            a.href = "https://ipfs.io" + image;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");    
+            var image = '/ipfs/' + result;
+            a.innerHTML = 'uploaded ' + image;
+            a.href = 'https://ipfs.io' + image;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
 
             nft.mint(
-                price.shiftedBy(6).toFixed(0),
-                sellPrice.shiftedBy(6).toFixed(0),
+                price.shiftedBy(18).toFixed(0),
+                sellPrice.shiftedBy(18).toFixed(0),
                 name,
                 description,
                 image,
-                "0x0"
-            ).send({
-                feeLimit: 100000000,
-                shouldPollResponse: true
-            }).then(function (hash) {
-                var a = document.createElement("a");
-                a.innerHTML = "create " + name;
+                '0x0'
+            ).send().then(function (hash) {
+                var a = document.createElement('a');
+                a.innerHTML = 'create ' + name;
                 a.id = hash;
-                a.href = prefix + "/transaction/" + hash;
-                a.setAttribute("target", "_blank");
-                a.setAttribute("rel", "noopener");
-                document.getElementById("log").appendChild(a);
+                a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+                a.setAttribute('target', '_blank');
+                a.setAttribute('rel', 'noopener');
+                document.getElementById('log').appendChild(a);
             });
+            document.getElementById('createMint').onclick = createMint;
         });
     }
 
     function upload(file, callback) {
         var data = new FormData();
-        data.append("file", file);
+        data.append('file', file);
         var request = new XMLHttpRequest();
-        request.open("POST", "https://api.pinata.cloud/pinning/pinFileToIPFS", true);
-        request.setRequestHeader("pinata_api_key", "e46ee10e03199ea247ee");
-        request.setRequestHeader("pinata_secret_api_key", "148f9cd961b351fdbb7542e81643bef208198db261a00641a04faf794a6bb154");
+        request.open('POST', 'https://api.pinata.cloud/pinning/pinFileToIPFS', true);
+        request.setRequestHeader('pinata_api_key', 'e46ee10e03199ea247ee');
+        request.setRequestHeader('pinata_secret_api_key', '148f9cd961b351fdbb7542e81643bef208198db261a00641a04faf794a6bb154');
         request.onreadystatechange = function () {
             if (request.readyState == 4) {
                 if (request.status != 200) {
-                    console.log(request);
+                    console.error(request);
                     callback(request.status);
                 } else {
                     callback(null, JSON.parse(request.responseText).IpfsHash);
@@ -651,24 +586,67 @@
         request.send(data);
     }
 
+    function marketItem(id) {
+        if (!check()) {
+            return;
+        }
+        document.getElementById('marketItems').style.display = 'none';
+        document.getElementById('marketBuy').style.display = 'block';
+        selectedId = id;
+        nft.imageOf(id).call().then(function (result) {
+            result = 'https://ipfs.io' + result;
+            var div = document.getElementById('marketItemImage');
+            div.style.backgroundImage = 'url(\'' + result + '\')';
+            div.onclick = function () {
+                window.open(result);
+            };
+        });
+        nft.ownerOf(id).call().then(function (result) {
+            document.getElementById('marketItemOwner').innerHTML = result;
+            result = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/address/' + result;
+            document.getElementById('marketItemOwner').href = result;
+        });
+        nft.nameOf(id).call().then(function (result) {
+            document.getElementById('marketItemName').innerHTML = result;
+        });
+        nft.descriptionOf(id).call().then(function (result) {
+            document.getElementById('marketItemDescription').innerHTML = result;
+        });
+        nft.priceOf(id).call().then(function (result) {
+            result = tronWeb.BigNumber(result).shiftedBy(-18);
+            document.getElementById('marketItemPrice').title = result;
+            result = result.toFixed(3, tronWeb.BigNumber.ROUND_DOWN);
+            document.getElementById('marketItemPrice').innerHTML = result;
+        });
+        nft.sellPriceOf(id).call().then(function (result) {
+            result = tronWeb.BigNumber(result).shiftedBy(-18);
+            document.getElementById('marketItemSellPrice').title = result;
+            result = result.toFixed(3, tronWeb.BigNumber.ROUND_DOWN);
+            document.getElementById('marketItemSellPrice').innerHTML = result;
+        });
+    }
+
     function marketClose() {
-        document.getElementById("marketItems").style.display = "block";
-        document.getElementById("marketBuy").style.display = "none";
+        document.getElementById('marketItems').style.display = 'block';
+        document.getElementById('marketBuy').style.display = 'none';
     }
 
     function marketBuy() {
+        if (!check()) {
+            return;
+        }
         nft.buy(
             selectedId,
-            "0x0"
+            '0x0'
         ).send().then(function (hash) {
             marketClose();
-            var a = document.createElement("a");
-            a.innerHTML = "buy, id " + selectedId;
+            var a = document.createElement('a');
+            a.innerHTML = 'buy id ' + selectedId;
             a.id = hash;
-            a.href = prefix + "/transaction/" + hash;
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener");
-            document.getElementById("log").appendChild(a);
+            a.href = (network ? 'https://' : 'https://shasta.') + 'tronscan.org/#/transaction/' + hash;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            document.getElementById('log').appendChild(a);
         });
     }
 })();

@@ -18,9 +18,6 @@
             <div>
                 <img id="headerStart" src="assets/icon.png" width="48" height="48" alt="logo" />
             </div>
-            <div class="connect">
-                <button id="headerConnect" type="button">connect</button>
-            </div>
             <div>
                 <button id="headerFt" type="button">ft</button>
             </div>
@@ -38,17 +35,13 @@
             <div id="start">
                 <h1>test</h1>
                 <p id="startMessage"></p>
-                <div class="connect">
-                    <button id="startConnect" type="button">connect</button>
-                </div>
-                <p>Install the <a href="https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec" target="_blank" rel="noopener">wallet</a>.</p>
                 <p>Choose the testnet in the wallet. TronLink -> Set up -> Node -> Shasta Testnet.</p>
                 <p>Get free test <a href="https://www.trongrid.io/shasta/#request" target="_blank" rel="noopener">trx</a>.</p>
                 <p>Try it!</p>
             </div>
             <div id="ft">
-                <p class="onestring">contract <a id="ftAddress" href="https://shasta.tronscan.org/#/contract/TLc4FQ25w2FXKWWx9sDkuf3XyQ2UvrJzHZ" target="_blank" rel="noopener">TLc4FQ25w2FXKWWx9sDkuf3XyQ2UvrJzHZ</a></p>
-                <p>contract balance <span id="ftContractEth">...</span> trx</p>
+                <p class="onestring">contract <a id="ftAddress" href="https://shasta.tronscan.org/#/contract/TQNG46ys15172srMdezH7FgwK8m2rusx97" target="_blank" rel="noopener">TQNG46ys15172srMdezH7FgwK8m2rusx97</a></p>
+                <p>contract balance <span id="ftContractTrx">...</span> trx</p>
                 <p>your shares <span id="ftShares">...</span> f</p>
                 <p>your balance <span id="ftBalance">...</span> f</p>
                 <p>your dividends <span id="ftDividends">...</span> trx</p>
@@ -57,7 +50,7 @@
                 <div class="half">
                     <div>
                         <label>trx value
-                            <input id="ftBuyValue" class="input" type="number" />
+                            <input id="ftBuyValue" class="input" />
                         </label>
                         <button id="ftBuy" type="button">buy</button>
                     </div>
@@ -65,7 +58,7 @@
                 <div class="half">
                     <div>
                         <label>f value
-                            <input id="ftSellValue" class="input" type="number" />
+                            <input id="ftSellValue" class="input" />
                         </label>
                         <button id="ftSell" type="button">sell</button>
                     </div>
@@ -80,7 +73,7 @@
                 </div>
             </div>
             <div id="nft">
-                <p class="onestring">contract <a id="nftAddress" href="https://shasta.tronscan.org/#/contract/TGkr8pbvJi12GQgkgZBPE74QyDG1vUxiKs" target="_blank" rel="noopener">TGkr8pbvJi12GQgkgZBPE74QyDG1vUxiKs</a></p>
+                <p class="onestring">contract <a id="nftAddress" href="https://shasta.tronscan.org/#/contract/TTdfFLV5WKKa83t8JsjGDuh74ejok9rCT9" target="_blank" rel="noopener">TTdfFLV5WKKa83t8JsjGDuh74ejok9rCT9</a></p>
                 <div id="nftItems">
                     <p>...</p>
                 </div>
@@ -97,7 +90,7 @@
                         <div>
                             <h3>set price</h3>
                             <label>f value or 0 if not on sell
-                                <input id="nftPrice" class="input" type="number" />
+                                <input id="nftPrice" class="input" />
                             </label>
                             <button id="nftSet" type="button">set</button>
                         </div>
@@ -125,10 +118,10 @@
                         <input id="createDescription" class="input" type="text" size="100" maxlength="100" />
                     </label>
                     <label>price
-                        <input id="createPrice" class="input" type="number" />
+                        <input id="createPrice" class="input" />
                     </label>
                     <label>sell price or 0 if not on sell
-                        <input id="createSellPrice" class="input" type="number" />
+                        <input id="createSellPrice" class="input" />
                     </label>
                     <button id="createMint" type="button">create</button>
                 </div>
@@ -140,7 +133,7 @@
                 <div id="marketBuy">
                     <button id="marketClose" type="button">back</button>
                     <div id="marketItemImage"></div>
-                    <p class="onestring">owner <span id="marketItemOwner" class="onestring">...</span></p>
+                    <p class="onestring">owner <a id="marketItemOwner" class="onestring">...</a></p>
                     <p id="marketItemName">...</p>
                     <p id="marketItemDescription">...</p>
                     <p>price <span id="marketItemPrice">...</span> f</p>
@@ -151,7 +144,6 @@
             </div>
             <div id="log"></div>
         </div>
-        <script src="assets/bignumber.min.js"></script>
         <script src="assets/script.js"></script>
     </body>
 </html>
