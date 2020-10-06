@@ -54,6 +54,8 @@
             if (!event.data.message) {
                 return;
             }
+            console.log('message ' + event.data.message.action);
+            console.log(event.data.message.data);
             if (event.data.message.action === 'tabReply') { // once loaded, send tx
                 if (event.data.message.data.data.node) {
                     setNetwork(event.data.message.data.data.node.fullNode, tronWeb.defaultAddress.base58);
@@ -67,6 +69,7 @@
     }
 
     function setNetwork(newNetwork, newAccount) {
+console.log('setNetwork ' + newNetwork + ', ' + newAccount);
         account = null;
         if (newNetwork === 'https://api.trongrid.io' || newNetwork === 'https://api.tronstack.io') {
             network = true;
@@ -86,6 +89,9 @@
         document.getElementById('ftAddress').href = base + ftAddress;
         document.getElementById('nftAddress').innerHTML = nftAddress;
         document.getElementById('nftAddress').href = base + nftAddress;
+if (newNetwork) {
+    setAccount(newAccount);
+}
         tronWeb.contract().at(ftAddress).then(function (contract) {
             ft = contract;
             return tronWeb.contract().at(nftAddress);
@@ -97,6 +103,7 @@
     }
 
     function setAccount(newAccount) {
+console.log('setAccount ' + newAccount);
         if (!newAccount) {
             account = null;
         } else if (account !== newAccount) {
